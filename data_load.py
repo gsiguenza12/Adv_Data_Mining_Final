@@ -9,29 +9,55 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+from sklearn.preprocessing import MinMaxScaler
 
-
+# Load the dataset
 path = './bots_vs_users.csv'
-
 print("Path to dataset files:", path)
-
 df = pd.read_csv(path)
-df.head()
 
+# Display basic info
 print("\nBasic Info:")
-print(df.info)
+print(df.info())
 
+# Replace 'Unknown' and empty strings with NaN
+df.replace(['Unknown', ''], np.nan, inplace=True)
+
+# Show missing values
 print("\nMissing Values:")
 missing = df.isnull().sum()
 print(missing[missing > 0])
 
+# Convert numeric-like columns that may be read as object due to 'Unknown'
+for col in df.columns:
+    if df[col].dtype == 'object':
+        try:
+            df[col] = pd.to_numeric(df[col])
+        except:
+            continue
+
+# Fill missing numeric values with column median
+numeric_cols = df.select_dtypes(include=['number']).columns
+df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].median())
+
+# For categorical columns, fill missing with mode
+categorical_cols = df.select_dtypes(include='object').columns
+df[categorical_cols] = df[categorical_cols].fillna(df[categorical_cols].mode().iloc[0])
+
+# Normalize numeric columns using Min-Max scaling
+scaler = MinMaxScaler()
+df[numeric_cols] = scaler.fit_transform(df[numeric_cols])
+
+# Final check
+print("\nFinal Missing Values Check:")
+print(df.isnull().sum().sum(), "missing values remaining.")
+
 print("\nSkewness Check:")
-skewed_features = df.select_dtypes(include=['number']).apply(lambda x: x.skew()).sort_values(ascending=False)
+skewed_features = df[numeric_cols].apply(lambda x: x.skew()).sort_values(ascending=False)
 print(skewed_features)
 
 print("\nRecommendation:")
 for col, skew in skewed_features.items():
-    # print("\n")
     if abs(skew) > 1:
         print(f"{col} is highly skewed (skew={skew:.2f}). Suggest: Apply log or sqrt transform.")
     elif abs(skew) > 0.5:
