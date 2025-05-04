@@ -3,16 +3,17 @@
 # FILENAME: data_mining_project.py
 # SPECIFICATION:  
 # FOR: CS 5990 - Advanced Data Mining Final Project
-#-----------------------------------------------------------*/
+#-------------------------------------------------------------------------
 
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
 
 # Load the dataset
-path = './bots_vs_users.csv'
+path = './data/bots_vs_users.csv'
 print("Path to dataset files:", path)
 df = pd.read_csv(path)
 
@@ -64,3 +65,25 @@ for col, skew in skewed_features.items():
         print(f"{col} is moderately skewed (skew={skew:.2f}). Transform optional.")
     else:
         print(f"{col} is fairly symmetric (skew={skew:.2f}). No action needed.")
+
+# One-hot encode categorical columns to ensure all features are numeric
+df = pd.get_dummies(df)
+
+# Remove rows with missing target values
+df = df[df['target'].notnull()]
+
+# Separate features and target
+X = df.drop('target', axis=1)
+y = df['target']
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, stratify=y, random_state=42)
+
+# Save the splits as CSV files
+X_train.to_csv('data/X_train.csv', index=False)
+X_test.to_csv('data/X_test.csv', index=False)
+y_train.to_csv('data/y_train.csv', index=False)
+y_test.to_csv('data/y_test.csv', index=False)
+
+print("\nData successfully cleaned, encoded, split, and saved.")
