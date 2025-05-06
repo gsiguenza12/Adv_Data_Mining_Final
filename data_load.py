@@ -6,8 +6,6 @@
 #-------------------------------------------------------------------------
 
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
@@ -18,8 +16,8 @@ print("Path to dataset files:", path)
 df = pd.read_csv(path)
 
 # Display basic info
-print("\nBasic Info:")
-print(df.info())
+# print("\nBasic Info:")
+# print(df.info())
 
 # Replace 'Unknown' and empty strings with NaN
 df.replace(['Unknown', ''], np.nan, inplace=True)
@@ -27,7 +25,7 @@ df.replace(['Unknown', ''], np.nan, inplace=True)
 # Show missing values
 print("\nMissing Values:")
 missing = df.isnull().sum()
-print(missing[missing > 0])
+# print(missing[missing > 0])
 
 # Convert numeric-like columns that may be read as object due to 'Unknown'
 for col in df.columns:
@@ -51,20 +49,20 @@ df[numeric_cols] = scaler.fit_transform(df[numeric_cols])
 
 # Final check
 print("\nFinal Missing Values Check:")
-print(df.isnull().sum().sum(), "missing values remaining.")
+# print(df.isnull().sum().sum(), "missing values remaining.")
 
 print("\nSkewness Check:")
 skewed_features = df[numeric_cols].apply(lambda x: x.skew()).sort_values(ascending=False)
-print(skewed_features)
+# print(skewed_features)
 
-print("\nRecommendation:")
-for col, skew in skewed_features.items():
-    if abs(skew) > 1:
-        print(f"{col} is highly skewed (skew={skew:.2f}). Suggest: Apply log or sqrt transform.")
-    elif abs(skew) > 0.5:
-        print(f"{col} is moderately skewed (skew={skew:.2f}). Transform optional.")
-    else:
-        print(f"{col} is fairly symmetric (skew={skew:.2f}). No action needed.")
+# print("\nRecommendation:")
+# for col, skew in skewed_features.items():
+#     if abs(skew) > 1:
+#         print(f"{col} is highly skewed (skew={skew:.2f}). Suggest: Apply log or sqrt transform.")
+#     elif abs(skew) > 0.5:
+#         print(f"{col} is moderately skewed (skew={skew:.2f}). Transform optional.")
+#     else:
+#         print(f"{col} is fairly symmetric (skew={skew:.2f}). No action needed.")
 
 # One-hot encode categorical columns to ensure all features are numeric
 df = pd.get_dummies(df)
